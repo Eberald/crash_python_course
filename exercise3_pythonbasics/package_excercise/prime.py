@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-def Eratosthenes_alghoritm(n : int) -> list:
+def Eratosthenes_alghoritm(n : int) -> set:
     """
     Give as a set the list of the prime numbers until number n 
 
@@ -11,8 +11,8 @@ def Eratosthenes_alghoritm(n : int) -> list:
 
     Returns
     -------
-    _prime : list
-        a list containing all the prime number
+    _prime : set
+        a set containing all the prime number
     """
     _prime=[int(i) for i in range(1,n+1)]
     _=1
