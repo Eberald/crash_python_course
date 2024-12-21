@@ -80,7 +80,8 @@ class Rational():
         return instance_rat
 
     #function used for the class arithmetical procedures
-    def _counter_elements(self, numbers : list) -> dict :
+    @classmethod
+    def _counter_elements(cls, numbers : list) -> dict :
         """
         create a dictionary that count the number of same elements
         present. Used for the mcm computation
@@ -106,40 +107,73 @@ class Rational():
         return count
 
     #mcmc computation
-    def mcmc(self, obj2 : "Rational") -> int :
+    @classmethod
+    def mcm(cls, obj1 : int, obj2 : int) -> int :
         """
-        compute the mcmc for denominator given two Rational
+        compute the mcm given two numbers int
 
         Parameters
         ----------
-        obj1 : Rational
-            istance of class
-        obj2 : Rational
-            istance of class
+        obj1 : int
+        obj2 : int
 
         Returns
         -------
-        mcmc : int
-            mcmc for the two denominators
+        mcm : int
+            mcm for the two denominators
         """
 
-        mcmc = 1
-        _d1_deco = pd(self.d)
-        _d2_deco = pd(obj2.d)
-        _c1 = self._counter_elements(_d1_deco)
-        _c2 = self._counter_elements(_d2_deco)
+        mcm = 1
+        _d1_deco = pd(obj1)
+        _d2_deco = pd(obj2)
+        _c1 = cls._counter_elements(_d1_deco)
+        _c2 = cls._counter_elements(_d2_deco)
         _primes_c1c2 = set(_c1.keys()).union(set(_c2.keys()))
 
-        _primes_mcmc = []
         for _number in _primes_c1c2:
             _element_freq_1 = _c1.get(_number, 0)
             _element_freq_2 = _c2.get(_number, 0)
             _maximum_freq = max(_element_freq_1, _element_freq_2)
 
             for _ in range(_maximum_freq):
-                mcmc *= _number
+                mcm *= _number
 
-        return mcmc
+        return mcm
+
+    #MCD computation
+    @classmethod
+    def MCD(cls, obj1 : int, obj2 : int) -> int :
+            """
+            compute the MCD given two numbers int
+    
+            Parameters
+            ----------
+            obj1 : int
+            obj2 : int
+    
+            Returns
+            -------
+            MCD : int
+                MCD for the two denominators
+            """
+    
+            MCD = 1
+            _d1_deco = pd(obj1)
+            _d2_deco = pd(obj2)
+            _c1 = cls._counter_elements(_d1_deco)
+            _c2 = cls._counter_elements(_d2_deco)
+            _primes_c1c2 = set(_c1.keys()).intersection(set(_c2.keys()))
+    
+            for _number in _primes_c1c2:
+                _element_freq_1 = _c1.get(_number, 0)
+                _element_freq_2 = _c2.get(_number, 0)
+                _maximum_freq = min(_element_freq_1, _element_freq_2)
+    
+                for _ in range(_maximum_freq):
+                    MCD *= _number
+    
+            return MCD
+    
 
 
     def __str__(self) -> str :
@@ -167,35 +201,37 @@ class Rational():
         """
         return the sum of two rational
         """
-        _mcmc = self.mcmc(other)
-        _num = int((_mcmc/self.d)*self.n+(_mcmc/other.d)*other.n)
-        return self._initnumdem(_num,_mcmc)
+        _mcm = self.mcm(self.d,other.d)
+        _num = int((_mcm/self.d)*self.n+(_mcm/other.d)*other.n)
+        return self._initnumdem(_num,_mcm)
 
     def __sub__(self, other) -> "Rational" :
         """
         return the subtraction of two rational
         """
-        _mcmc = self.mcmc(other)
-        _num = int((_mcmc/self.d)*self.n-(_mcmc/other.d)*other.n)
-        return self._initnumdem(_num,_mcmc)
+        _mcm = self.mcm(self.d,other.d)
+        _num = int((_mcm/self.d)*self.n-(_mcm/other.d)*other.n)
+        return self._initnumdem(_num,_mcm)
 
     def __mul__(self, other) -> "type(self)" :
         """
         return the multiplication of two rational
         """
-        return type(self)(self.real*other.real, min(self.precision, other.precision))
+        _MCD_up = self.MCD(self.d,other.n)
+        _MCD_down = self.MCD(self.n,other.d)
+        _num = int((self.n/_MCD_down) * (other.n/_MCD_up))
+        _den = int((self.d/_MCD_up) * (other.d/_MCD_down))
+        return self._initnumdem(_num,_den)
 
     def __truediv__(self, other) -> "type(self)" :
         """
         return the division of two rational
         """
-        return type(self)(self.real/other.real, min(self.precision, other.precision))
-
-    def __pow__(self, other) -> "type(self)" :
-        """
-        return the division of two rational
-        """
-        return type(self)(self.real**other.real, min(self.precision, other.precision))
+        _MCD_up = self.MCD(self.d,other.d)
+        _MCD_down = self.MCD(self.n,other.n)
+        _num = int((self.n/_MCD_down) * (other.d/_MCD_up))
+        _den = int((self.d/_MCD_up) * (other.n/_MCD_down))
+        return self._initnumdem(_num,_den)
 
     # comparison operators
 
@@ -204,22 +240,65 @@ class Rational():
         = operator, return true or false if equal or not
         """
         return True if self.n==other.n and self.d==other.d else False
+
+    def __lt__(self, other) -> bool :
+        _diff = self - other
+        return True if _diff.n<0 else False
+
+    def __le__(self, other) -> bool :
+        _diff = self - other
+        return True if _diff.n<=0 else False
+
+    def __ne__(self, other) -> bool :
+        return True if self.n!=other.n or self.d!=other.d else False
+
+    def __gt__(self, other) -> bool :
+        _diff = self - other
+        return True if _diff.n>0 else False
+
+    def __ge__(self, other) -> bool :
+        _diff = self - other
+        return True if _diff.n>=0 else False
+
+    #hash method
+    def __hash__ (self) :
+        return hash((self.n, self.d))
+
+    #optional methods
+
+    def to_integer_low (self) -> int :
+        """Documentation of function `to_integer_low`"""
+        return int(self.real//1)
+    
+    def to_integer_upp (self) -> int :
+        """Documentation of function `to_integer_upp`"""
+        return int(self.real//1 + 1)
             
             
 
 
 if __name__ == "__main__":
+    ernesto = Rational(-5)
     franco = Rational(2.5)
     beppe = Rational(2.33)
+    gigio = Rational(2.33)
     anto = franco
     pipi = Rational._initnumdem(10,-33)
+    print(Rational.mcm(30,49))
     print(abs(pipi))
+    print(ernesto)
     print(str(franco)+" + "+str(beppe)+" = "+str(franco+beppe))
     print(str(franco)+" - "+str(beppe)+" = "+str(franco-beppe))
-    #print(str(franco)+" * "+str(beppe)+" = "+str(franco*beppe))
-    #print(str(franco)+" / "+str(beppe)+" = "+str(franco/beppe))
-    #print(str(franco)+" ** "+str(beppe)+" = "+str(franco**beppe))
-    #print(franco==beppe)
-    #print(anto==franco)
-    
+    print(str(franco)+" * "+str(beppe)+" = "+str(franco*beppe))
+    print(str(franco)+" / "+str(beppe)+" = "+str(franco/beppe))
+    print(franco==beppe)
+    print(franco!=beppe)
+    print(beppe<franco)
+    print(beppe>franco)
+    print(franco<=anto)
+    print(hash(beppe),hash(gigio))
+    alfonso={gigio,beppe}
+    print(str(alfonso))
+    print(franco.to_integer_low())
+    print(franco.to_integer_upp())
     
