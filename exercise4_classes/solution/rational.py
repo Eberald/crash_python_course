@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import math as mt
+from deco import prime_division as pd
 
 class Rational():
     """
@@ -26,20 +27,10 @@ class Rational():
             denominator, if choosen the construction with
             numerator should be put !=0
         """
-        self.n=n_def
-        self.d=d_def
-        self.precision=precision
-        self.real=num
         
         if precision < 0 or precision > 1 :
             print("Error: invalid precision")
             return None
-
-        if d_def!=0 :
-            self.n, self.d = n_def, d_def
-            self.precision = precision
-            self.real = float(n_def)/float(d_def)
-            return None   
 
         _a = mt.floor(num)
         _decimals = num - _a
@@ -58,6 +49,99 @@ class Rational():
         self.real, self.precision = float(num), float(precision)
         return None
 
+    @classmethod
+    def _initnumdem(cls, n: int, d: int) -> "Rational":
+        """
+        Alternative constructor to create a Rational instance directly
+        from a numerator and denominator
+            
+        Parameters
+        ----------
+        n : int
+            Numerator of the rational number
+        d : int
+            Denominator of the rational number
+            numerator should be put !=0
+
+        Returns
+        -------
+        instance_rat : Rational
+            return an istance of the class
+        """
+        if d == 0:
+            print("Error: denoiminator = 0")
+            return None
+            
+        instance_rat = cls()
+        instance_rat.n = n
+        instance_rat.d = d
+        instance_rat.real = float(n) / float(d)
+        instance_rat.precision = None
+        return instance_rat
+
+    #function used for the class arithmetical procedures
+    def _counter_elements(self, numbers : list) -> dict :
+        """
+        create a dictionary that count the number of same elements
+        present. Used for the mcm computation
+
+        Parameters
+        ----------
+        numbers : list
+            list for which we creaty dictionary
+
+        Returns
+        -------
+        count : dict
+            dictionary contains number of elements
+            in the list and the number of appearence
+        """
+        count = {}
+        for _number in numbers:
+            if _number not in count:
+                count[_number] = 1
+            else:
+                count[_number] += 1
+
+        return count
+
+    #mcmc computation
+    def mcmc(self, obj2 : "Rational") -> int :
+        """
+        compute the mcmc for denominator given two Rational
+
+        Parameters
+        ----------
+        obj1 : Rational
+            istance of class
+        obj2 : Rational
+            istance of class
+
+        Returns
+        -------
+        mcmc : int
+            mcmc for the two denominators
+        """
+
+        mcmc = 1
+        _d1_deco = pd(self.d)
+        _d2_deco = pd(obj2.d)
+        _c1 = self._counter_elements(_d1_deco)
+        _c2 = self._counter_elements(_d2_deco)
+        _primes_c1c2 = set(_c1.keys()).union(set(_c2.keys()))
+
+        _primes_mcmc = []
+        for _number in _primes_c1c2:
+            _element_freq_1 = _c1.get(_number, 0)
+            _element_freq_2 = _c2.get(_number, 0)
+            _maximum_freq = max(_element_freq_1, _element_freq_2)
+
+            for _ in range(_maximum_freq):
+                mcmc *= _number
+
+        return mcmc
+
+
     def __str__(self) -> str :
         """
         print the ratinal number in the format n/d
@@ -71,25 +155,29 @@ class Rational():
         """
         return "rational( "+str(self.real)+", precision= "+str(self.precision)+" )"
 
-    def __abs__(self) -> "type(self)" :
+    def __abs__(self) -> "Rational" :
         """
         return the absolute value of the rational
         """
-        return type(self)(abs(self.real), self.precision)
+        return self._initnumdem(abs(self.n),abs(self.d))
 
     # arithmetical operators
    
-    def __add__(self, other) -> "type(self)" : 
+    def __add__(self, other) -> "Rational" : 
         """
         return the sum of two rational
         """
-        return type(self)(self.real+other.real, min(self.precision, other.precision))
+        _mcmc = self.mcmc(other)
+        _num = int((_mcmc/self.d)*self.n+(_mcmc/other.d)*other.n)
+        return self._initnumdem(_num,_mcmc)
 
-    def __sub__(self, other) -> "type(self)" :
+    def __sub__(self, other) -> "Rational" :
         """
         return the subtraction of two rational
         """
-        return type(self)(self.real-other.real, min(self.precision, other.precision))
+        _mcmc = self.mcmc(other)
+        _num = int((_mcmc/self.d)*self.n-(_mcmc/other.d)*other.n)
+        return self._initnumdem(_num,_mcmc)
 
     def __mul__(self, other) -> "type(self)" :
         """
@@ -124,14 +212,14 @@ if __name__ == "__main__":
     franco = Rational(2.5)
     beppe = Rational(2.33)
     anto = franco
-    pippo = Rational(n_def=10,d_def=3)
-    print(pippo)
+    pipi = Rational._initnumdem(10,-33)
+    print(abs(pipi))
     print(str(franco)+" + "+str(beppe)+" = "+str(franco+beppe))
     print(str(franco)+" - "+str(beppe)+" = "+str(franco-beppe))
-    print(str(franco)+" * "+str(beppe)+" = "+str(franco*beppe))
-    print(str(franco)+" / "+str(beppe)+" = "+str(franco/beppe))
-    print(str(franco)+" ** "+str(beppe)+" = "+str(franco**beppe))
-    print(franco==beppe)
-    print(anto==franco)
+    #print(str(franco)+" * "+str(beppe)+" = "+str(franco*beppe))
+    #print(str(franco)+" / "+str(beppe)+" = "+str(franco/beppe))
+    #print(str(franco)+" ** "+str(beppe)+" = "+str(franco**beppe))
+    #print(franco==beppe)
+    #print(anto==franco)
     
     
