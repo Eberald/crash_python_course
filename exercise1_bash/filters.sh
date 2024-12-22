@@ -30,6 +30,8 @@ for file_name in "$current_dir"/*; do
 	if [ $(head -10 $file_name | grep -c "photon") != 0 ]; then
 		mv $file_name ${file_name%.*}.photons.filt
 	elif [ $(head -10 $file_name | grep -c "energy") != 0 ]; then
-			mv $file_name ${file_name%.*}.energy.filt
+		mv $file_name ${file_name%.*}.energy.filt
+	else
+		mv $file_name ${file_name%.*}.none.filt
 	fi
 done
