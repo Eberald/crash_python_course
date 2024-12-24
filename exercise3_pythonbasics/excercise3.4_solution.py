@@ -14,6 +14,10 @@ def Eratosthenes_alghoritm(n : int) -> list:
     _prime : list
         a list containing all the prime number
     """
+    if n == 1:
+        _prime=[1]
+        return _prime
+    
     _prime=[int(i) for i in range(1,n+1)]
     _=1
     _current_prime=_prime[_]

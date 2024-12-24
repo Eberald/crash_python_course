@@ -62,7 +62,7 @@ class Rational():
         d : int
             Denominator of the rational number
             numerator should be put !=0
-
+    
         Returns
         -------
         instance_rat : Rational
@@ -71,13 +71,29 @@ class Rational():
         if d == 0:
             print("Error: denoiminator = 0")
             return None
-            
-        instance_rat = cls()
-        instance_rat.n = n
-        instance_rat.d = d
-        instance_rat.real = float(n) / float(d)
-        instance_rat.precision = None
-        return instance_rat
+    
+        if d < 0 :
+            d = -d
+            n = n*(-1)
+
+        if n == 0 :
+            instance_rat = cls()
+            instance_rat.n = n
+            instance_rat.d = 1
+            instance_rat.real = 0.
+            instance_rat.precision = None
+            return instance_rat
+        else:
+            instance_rat = cls()
+            _MCD = cls.MCD(n,d)
+            instance_rat.n = int(n/_MCD)
+            instance_rat.d = int(d/_MCD)
+            instance_rat.real = float(n) / float(d)
+            instance_rat.precision = None
+            return instance_rat              
+    
+
+
 
     #function used for the class arithmetical procedures
     @classmethod
@@ -124,8 +140,8 @@ class Rational():
         """
 
         mcm = 1
-        _d1_deco = pd(obj1)
-        _d2_deco = pd(obj2)
+        _d1_deco = pd(abs(obj1))
+        _d2_deco = pd(abs(obj2))
         _c1 = cls._counter_elements(_d1_deco)
         _c2 = cls._counter_elements(_d2_deco)
         _primes_c1c2 = set(_c1.keys()).union(set(_c2.keys()))
@@ -135,7 +151,7 @@ class Rational():
             _element_freq_2 = _c2.get(_number, 0)
             _maximum_freq = max(_element_freq_1, _element_freq_2)
 
-            for _ in range(_maximum_freq):
+            for _i in range(_maximum_freq):
                 mcm *= _number
 
         return mcm
@@ -158,8 +174,8 @@ class Rational():
             """
     
             MCD = 1
-            _d1_deco = pd(obj1)
-            _d2_deco = pd(obj2)
+            _d1_deco = pd(abs(obj1))
+            _d2_deco = pd(abs(obj2))
             _c1 = cls._counter_elements(_d1_deco)
             _c2 = cls._counter_elements(_d2_deco)
             _primes_c1c2 = set(_c1.keys()).intersection(set(_c2.keys()))
@@ -169,11 +185,10 @@ class Rational():
                 _element_freq_2 = _c2.get(_number, 0)
                 _maximum_freq = min(_element_freq_1, _element_freq_2)
     
-                for _ in range(_maximum_freq):
+                for _i in range(_maximum_freq):
                     MCD *= _number
     
             return MCD
-    
 
 
     def __str__(self) -> str :
@@ -242,36 +257,60 @@ class Rational():
         return True if self.n==other.n and self.d==other.d else False
 
     def __lt__(self, other) -> bool :
+        """
+        < operator
+        """
         _diff = self - other
         return True if _diff.n<0 else False
 
     def __le__(self, other) -> bool :
+        """
+        <= operator
+        """
         _diff = self - other
         return True if _diff.n<=0 else False
 
     def __ne__(self, other) -> bool :
+        """
+        != operator
+        """
         return True if self.n!=other.n or self.d!=other.d else False
 
     def __gt__(self, other) -> bool :
+        """
+        > operator
+        """
         _diff = self - other
         return True if _diff.n>0 else False
 
     def __ge__(self, other) -> bool :
+        """
+        >= operator
+        """
         _diff = self - other
         return True if _diff.n>=0 else False
 
     #hash method
     def __hash__ (self) :
+        """
+        hash method for the class, if same numerator and same
+        denominator, hash equal (always true because of semplification)
+        of all the object applied in the class
+        """
         return hash((self.n, self.d))
 
     #optional methods
 
     def to_integer_low (self) -> int :
-        """Documentation of function `to_integer_low`"""
+        """
+        return the approximation in defect of the rational
+        """
         return int(self.real//1)
     
     def to_integer_upp (self) -> int :
-        """Documentation of function `to_integer_upp`"""
+        """
+        return the approximation in excess of the rational
+        """
         return int(self.real//1 + 1)
             
             
@@ -279,12 +318,14 @@ class Rational():
 
 if __name__ == "__main__":
     ernesto = Rational(-5)
+    gigietto = Rational(0)
     franco = Rational(2.5)
     beppe = Rational(2.33)
     gigio = Rational(2.33)
-    anto = franco
-    pipi = Rational._initnumdem(10,-33)
+    anto = Rational(2.5)
+    pipi = Rational._initnumdem(10,-40)
     print(Rational.mcm(30,49))
+    print(gigietto)
     print(abs(pipi))
     print(ernesto)
     print(str(franco)+" + "+str(beppe)+" = "+str(franco+beppe))
@@ -296,7 +337,7 @@ if __name__ == "__main__":
     print(beppe<franco)
     print(beppe>franco)
     print(franco<=anto)
-    print(hash(beppe),hash(gigio))
+    print(hash(beppe)==hash(gigio))
     alfonso={gigio,beppe}
     print(str(alfonso))
     print(franco.to_integer_low())
