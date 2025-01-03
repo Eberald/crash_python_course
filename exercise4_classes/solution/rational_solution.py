@@ -7,7 +7,7 @@ class Rational():
     """
     class representing the rational numbers
     """
-    def __init__(self, num = 0, precision = 1.e-5, n_def = 1, d_def = 0) :
+    def __init__(self, num = 0, precision = 1.e-5) :
         """
         constructur of the class, convert num in a rational
 
@@ -18,14 +18,6 @@ class Rational():
 
         precision : float (1.e-5 default)
             precision of the conversion
-
-        n_def : int (1 default)
-            numerator, if not inserted togheder with denominator
-            is constructing the rational from num
-
-        d_def : int (0 default)
-            denominator, if choosen the construction with
-            numerator should be put !=0
         """
         
         if precision < 0 or precision > 1 :
@@ -100,7 +92,7 @@ class Rational():
     def _counter_elements(cls, numbers : list) -> dict :
         """
         create a dictionary that count the number of same elements
-        present. Used for the mcm computation
+        present. Used for the mcm and MCD computation
 
         Parameters
         ----------
@@ -228,7 +220,7 @@ class Rational():
         _num = int((_mcm/self.d)*self.n-(_mcm/other.d)*other.n)
         return self._initnumdem(_num,_mcm)
 
-    def __mul__(self, other) -> "type(self)" :
+    def __mul__(self, other) -> "Rational" :
         """
         return the multiplication of two rational
         """
@@ -238,7 +230,7 @@ class Rational():
         _den = int((self.d/_MCD_up) * (other.d/_MCD_down))
         return self._initnumdem(_num,_den)
 
-    def __truediv__(self, other) -> "type(self)" :
+    def __truediv__(self, other) -> "Rational" :
         """
         return the division of two rational
         """
@@ -317,29 +309,29 @@ class Rational():
 
 
 if __name__ == "__main__":
-    ernesto = Rational(-5)
-    gigietto = Rational(0)
-    franco = Rational(2.5)
-    beppe = Rational(2.33)
-    gigio = Rational(2.33)
-    anto = Rational(2.5)
-    pipi = Rational._initnumdem(10,-40)
-    print(Rational.mcm(30,49))
-    print(gigietto)
-    print(abs(pipi))
-    print(ernesto)
-    print(str(franco)+" + "+str(beppe)+" = "+str(franco+beppe))
-    print(str(franco)+" - "+str(beppe)+" = "+str(franco-beppe))
-    print(str(franco)+" * "+str(beppe)+" = "+str(franco*beppe))
-    print(str(franco)+" / "+str(beppe)+" = "+str(franco/beppe))
-    print(franco==beppe)
-    print(franco!=beppe)
-    print(beppe<franco)
-    print(beppe>franco)
-    print(franco<=anto)
-    print(hash(beppe)==hash(gigio))
-    alfonso={gigio,beppe}
-    print(str(alfonso))
-    print(franco.to_integer_low())
-    print(franco.to_integer_upp())
+    negative = Rational(-5.32)
+    positive = Rational(6.44)
+    zero = Rational(0)
+    n_d_direct = Rational._initnumdem(100,-35)
+    print(str(negative.real)+" is "+str(negative))
+    print(str(positive.real)+" is "+str(positive))
+    print(str(zero.real)+" is "+str(zero))
+    print(str(n_d_direct.real)+" is "+str(n_d_direct)+"\n")
+    print("|"+str(negative)+"| = "+str(abs(negative)))
+    print(str(positive)+" + "+str(negative)+" = "+str(positive+negative))
+    print(str(positive)+" - "+str(negative)+" = "+str(positive-negative))
+    print(str(positive)+" * "+str(negative)+" = "+str(positive*negative))
+    print(str(positive)+" / "+str(negative)+" = "+str(positive/negative)+"\n")
+    print(str(positive)+" == "+str(negative)+" "+str(positive==negative))
+    print(str(positive)+" != "+str(negative)+" "+str(positive!=negative))
+    print(str(positive)+" < "+str(negative)+" "+str(positive<negative))
+    print(str(positive)+" > "+str(negative)+" "+str(positive>negative))
+    print(str(positive)+" <= "+str(negative)+" "+str(positive<=negative))
+
+    positive2 = Rational(6.44)
+    print(str(positive)+" >= "+str(positive2)+" "+str(positive>=positive2)+"\n")
+    set_belo={positive, negative, positive2}
+    print(str(set_belo))
+    print("lower integer to "+str(positive)+" is "+str(positive.to_integer_low()))
+    print("upper integer to "+str(negative)+" is "+str(negative.to_integer_upp()))
     
