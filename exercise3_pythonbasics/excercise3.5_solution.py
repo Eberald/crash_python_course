@@ -18,6 +18,9 @@ def prime_division(n : int) -> list:
         list of all the prime number of the decomposition
     """
 
+    if n==0:
+        return [0]
+
     _prime=prime.Eratosthenes_alghoritm(n)
     _divisor=[]
     for i in _prime:
@@ -40,7 +43,7 @@ def prime_division(n : int) -> list:
 if __name__=="__main__":
     try:
         n=int(input('insert positive integer\n'))
-        if n<=0:
+        if n<0:
             print("Error: not valid input")
             quit()
         deco=prime_division(n)

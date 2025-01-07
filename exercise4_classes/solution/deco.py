@@ -18,6 +18,9 @@ def prime_division(n : int) -> list:
         list of all the prime number of the decomposition
     """
 
+    if n==0:
+        return [0]
+    
     _prime=prime.Eratosthenes_alghoritm(n)
     _divisor=[]
     for i in _prime:

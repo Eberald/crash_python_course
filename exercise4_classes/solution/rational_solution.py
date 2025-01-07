@@ -19,11 +19,13 @@ class Rational():
         precision : float (1.e-5 default)
             precision of the conversion
         """
-        
+
+        #check precision range
         if precision < 0 or precision > 1 :
             print("Error: invalid precision")
             return None
 
+        #algorithm rationals approximation
         _a = mt.floor(num)
         _decimals = num - _a
         _n = [1,_a]
@@ -37,8 +39,11 @@ class Rational():
             _d.append(_a * _d[_] + _d[_ - 1])
             _ = _ + 1     
 
+        #saving class object variables
         self.n, self.d = _n[_], _d[_]
         self.real, self.precision = float(num), float(precision)
+        self.deco_d = pd(abs(self.d))
+        self.deco_n = pd(abs(self.n))
         return None
 
     @classmethod
@@ -60,20 +65,26 @@ class Rational():
         instance_rat : Rational
             return an istance of the class
         """
+        #check reasonable denominator
         if d == 0:
             print("Error: denoiminator = 0")
             return None
-    
+
+        #to be consistent to the tratment of the main constructur, put negative
+        #the numerator
         if d < 0 :
             d = -d
             n = n*(-1)
 
+        #constructor
         if n == 0 :
             instance_rat = cls()
             instance_rat.n = n
             instance_rat.d = 1
             instance_rat.real = 0.
             instance_rat.precision = None
+            instance_rat.deco_d = pd(abs(1))
+            instance_rat.deco_n = pd(abs(n))
             return instance_rat
         else:
             instance_rat = cls()
@@ -82,6 +93,8 @@ class Rational():
             instance_rat.d = int(d/_MCD)
             instance_rat.real = float(n) / float(d)
             instance_rat.precision = None
+            instance_rat.deco_d = pd(abs(int(d/_MCD)))
+            instance_rat.deco_n = pd(abs(int(n/_MCD)))
             return instance_rat              
     
 
@@ -116,14 +129,22 @@ class Rational():
 
     #mcmc computation
     @classmethod
-    def mcm(cls, obj1 : int, obj2 : int) -> int :
+    def mcm(cls, obj1 : int, obj2 : int, deco1 = [], deco2 = []) -> int :
         """
-        compute the mcm given two numbers int
+        compute the mcm given two numbers int.
 
         Parameters
         ----------
         obj1 : int
         obj2 : int
+        deco1 : list
+            this one in case of objects and not number, to make fast the
+            arithmetic operations giving the prime decomposition
+            (self variable of the class objects). Null list if not. 
+        deco2 : list
+            this one in case of objects and not number, to make fast the
+            arithmetic operations giving the prime decomposition
+            (self variable of the class objects). Null list if not.            
 
         Returns
         -------
@@ -132,12 +153,25 @@ class Rational():
         """
 
         mcm = 1
-        _d1_deco = pd(abs(obj1))
-        _d2_deco = pd(abs(obj2))
+        _d1_deco, _d2_deco = [], []
+
+        #check if present already the decomposition
+        #reduce computation time
+        if deco1 != [] and deco2 != []:
+            _d1_deco = deco1
+            _d2_deco = deco2
+        else:
+            _d1_deco = pd(abs(obj1))
+            _d2_deco = pd(abs(obj2))
+        
         _c1 = cls._counter_elements(_d1_deco)
         _c2 = cls._counter_elements(_d2_deco)
+        #union because mcm take all the prime numbers of decomposition
+        #maximum one in frequency
         _primes_c1c2 = set(_c1.keys()).union(set(_c2.keys()))
 
+        #cycle for getting the maximum prime present between the two
+        #decomposed numbers, and compute mcm
         for _number in _primes_c1c2:
             _element_freq_1 = _c1.get(_number, 0)
             _element_freq_2 = _c2.get(_number, 0)
@@ -150,14 +184,22 @@ class Rational():
 
     #MCD computation
     @classmethod
-    def MCD(cls, obj1 : int, obj2 : int) -> int :
+    def MCD(cls, obj1 : int, obj2 : int, deco1 = [], deco2 = []) -> int :
             """
-            compute the MCD given two numbers int
+            compute the MCD given two numbers int.
     
             Parameters
             ----------
             obj1 : int
             obj2 : int
+            deco1 : list
+                this one in case of objects and not number, to make fast the
+                arithmetic operations giving the prime decomposition
+                (self variable of the class objects). Null list if not. 
+            deco2 : list
+                this one in case of objects and not number, to make fast the
+                arithmetic operations giving the prime decomposition
+                (self variable of the class objects). Null list if not. 
     
             Returns
             -------
@@ -166,12 +208,24 @@ class Rational():
             """
     
             MCD = 1
-            _d1_deco = pd(abs(obj1))
-            _d2_deco = pd(abs(obj2))
+            _d1_deco, _d2_deco = [], []
+
+            #check if present already the decomposition
+            #reduce computation time       
+            if deco1 != [] and deco2 != []:
+                _d1_deco = deco1
+                _d2_deco = deco2
+            else:
+                _d1_deco = pd(abs(obj1))
+                _d2_deco = pd(abs(obj2))
+            
             _c1 = cls._counter_elements(_d1_deco)
             _c2 = cls._counter_elements(_d2_deco)
+            #intersection because MCD take the prime present in both the 
+            #decomposition the minimum one
             _primes_c1c2 = set(_c1.keys()).intersection(set(_c2.keys()))
-    
+
+            #same mcm but getting the minimum one
             for _number in _primes_c1c2:
                 _element_freq_1 = _c1.get(_number, 0)
                 _element_freq_2 = _c2.get(_number, 0)
@@ -208,7 +262,7 @@ class Rational():
         """
         return the sum of two rational
         """
-        _mcm = self.mcm(self.d,other.d)
+        _mcm = self.mcm(self.d,other.d,self.deco_d,other.deco_d)
         _num = int((_mcm/self.d)*self.n+(_mcm/other.d)*other.n)
         return self._initnumdem(_num,_mcm)
 
@@ -216,7 +270,7 @@ class Rational():
         """
         return the subtraction of two rational
         """
-        _mcm = self.mcm(self.d,other.d)
+        _mcm = self.mcm(self.d,other.d,self.deco_d,other.deco_d)
         _num = int((_mcm/self.d)*self.n-(_mcm/other.d)*other.n)
         return self._initnumdem(_num,_mcm)
 
@@ -224,8 +278,8 @@ class Rational():
         """
         return the multiplication of two rational
         """
-        _MCD_up = self.MCD(self.d,other.n)
-        _MCD_down = self.MCD(self.n,other.d)
+        _MCD_up = self.MCD(self.d,other.n,self.deco_d,other.deco_n)
+        _MCD_down = self.MCD(self.n,other.d,self.deco_n,other.deco_d)
         _num = int((self.n/_MCD_down) * (other.n/_MCD_up))
         _den = int((self.d/_MCD_up) * (other.d/_MCD_down))
         return self._initnumdem(_num,_den)
@@ -234,8 +288,8 @@ class Rational():
         """
         return the division of two rational
         """
-        _MCD_up = self.MCD(self.d,other.d)
-        _MCD_down = self.MCD(self.n,other.n)
+        _MCD_up = self.MCD(self.d,other.d,self.deco_d,other.deco_d)
+        _MCD_down = self.MCD(self.n,other.n,self.deco_n,other.deco_n)
         _num = int((self.n/_MCD_down) * (other.d/_MCD_up))
         _den = int((self.d/_MCD_up) * (other.n/_MCD_down))
         return self._initnumdem(_num,_den)
