@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import math as mt
+import sys
 from deco import prime_division as pd
 
 class Rational():
@@ -82,7 +83,8 @@ class Rational():
             instance_rat.n = n
             instance_rat.d = 1
             instance_rat.real = 0.
-            instance_rat.precision = None
+            #in this case, the precision is the float precision of python
+            instance_rat.precision = sys.float_info.epsilon
             instance_rat.deco_d = pd(abs(1))
             instance_rat.deco_n = pd(abs(n))
             return instance_rat
@@ -92,7 +94,8 @@ class Rational():
             instance_rat.n = int(n/_MCD)
             instance_rat.d = int(d/_MCD)
             instance_rat.real = float(n) / float(d)
-            instance_rat.precision = None
+            #in this case, the precision is the float precision of python
+            instance_rat.precision = sys.float_info.epsilon
             instance_rat.deco_d = pd(abs(int(d/_MCD)))
             instance_rat.deco_n = pd(abs(int(n/_MCD)))
             return instance_rat              
@@ -185,56 +188,56 @@ class Rational():
     #MCD computation
     @classmethod
     def MCD(cls, obj1 : int, obj2 : int, deco1 = [], deco2 = []) -> int :
-            """
-            compute the MCD given two numbers int.
+        """
+        compute the MCD given two numbers int.
     
-            Parameters
-            ----------
-            obj1 : int
-            obj2 : int
-            deco1 : list
-                this one in case of objects and not number, to make fast the
-                arithmetic operations giving the prime decomposition
-                (self variable of the class objects). Null list if not. 
-            deco2 : list
-                this one in case of objects and not number, to make fast the
-                arithmetic operations giving the prime decomposition
-                (self variable of the class objects). Null list if not. 
+        Parameters
+        ----------
+        obj1 : int
+        obj2 : int
+        deco1 : list
+            this one in case of objects and not number, to make fast the
+            arithmetic operations giving the prime decomposition
+            (self variable of the class objects). Null list if not. 
+        deco2 : list
+            this one in case of objects and not number, to make fast the
+            arithmetic operations giving the prime decomposition
+            (self variable of the class objects). Null list if not. 
     
-            Returns
-            -------
-            MCD : int
-                MCD for the two denominators
-            """
+        Returns
+        -------
+        MCD : int
+            MCD for the two denominators
+        """
     
-            MCD = 1
-            _d1_deco, _d2_deco = [], []
+        MCD = 1
+        _d1_deco, _d2_deco = [], []
 
-            #check if present already the decomposition
-            #reduce computation time       
-            if deco1 != [] and deco2 != []:
-                _d1_deco = deco1
-                _d2_deco = deco2
-            else:
-                _d1_deco = pd(abs(obj1))
-                _d2_deco = pd(abs(obj2))
+        #check if present already the decomposition
+        #reduce computation time       
+        if deco1 != [] and deco2 != []:
+            _d1_deco = deco1
+            _d2_deco = deco2
+        else:
+            _d1_deco = pd(abs(obj1))
+            _d2_deco = pd(abs(obj2))
             
-            _c1 = cls._counter_elements(_d1_deco)
-            _c2 = cls._counter_elements(_d2_deco)
-            #intersection because MCD take the prime present in both the 
-            #decomposition the minimum one
-            _primes_c1c2 = set(_c1.keys()).intersection(set(_c2.keys()))
+        _c1 = cls._counter_elements(_d1_deco)
+        _c2 = cls._counter_elements(_d2_deco)
+        #intersection because MCD take the prime present in both the 
+        #decomposition the minimum one
+        _primes_c1c2 = set(_c1.keys()).intersection(set(_c2.keys()))
 
-            #same mcm but getting the minimum one
-            for _number in _primes_c1c2:
-                _element_freq_1 = _c1.get(_number, 0)
-                _element_freq_2 = _c2.get(_number, 0)
-                _maximum_freq = min(_element_freq_1, _element_freq_2)
+        #same mcm but getting the minimum one
+        for _number in _primes_c1c2:
+            _element_freq_1 = _c1.get(_number, 0)
+            _element_freq_2 = _c2.get(_number, 0)
+            _maximum_freq = min(_element_freq_1, _element_freq_2)
     
-                for _i in range(_maximum_freq):
-                    MCD *= _number
+            for _i in range(_maximum_freq):
+                MCD *= _number
     
-            return MCD
+        return MCD
 
 
     def __str__(self) -> str :
@@ -336,6 +339,22 @@ class Rational():
         _diff = self - other
         return True if _diff.n>=0 else False
 
+    #castings
+    def __float__(self):
+        """
+        casting float number corresponding to rational
+        """
+        return self.real
+
+    def __int__(self):
+        """
+        casting integer number, using the well-known approximations
+        """
+        if abs(self.real-self.to_integer_low()) < 0.5:
+            return self.to_integer_low()
+        else:
+            return self.to_integer_upp()
+
     #hash method
     def __hash__ (self) :
         """
@@ -363,14 +382,24 @@ class Rational():
 
 
 if __name__ == "__main__":
+    #objects
     negative = Rational(-5.32)
     positive = Rational(6.44)
     zero = Rational(0)
     n_d_direct = Rational._initnumdem(100,-35)
+ 
     print(str(negative.real)+" is "+str(negative))
     print(str(positive.real)+" is "+str(positive))
     print(str(zero.real)+" is "+str(zero))
     print(str(n_d_direct.real)+" is "+str(n_d_direct)+"\n")
+
+    #test castings
+    print("integer of "+str(positive)+" is "+str(int(positive)))
+    print("integer of "+str(negative)+" is "+str(int(negative)))
+    print("float of "+str(positive)+" is "+str(float(positive)))
+    print("float of "+str(negative)+" is "+str(float(negative)))
+
+    #tests arithmetic and comparison operators   
     print("|"+str(negative)+"| = "+str(abs(negative)))
     print(str(positive)+" + "+str(negative)+" = "+str(positive+negative))
     print(str(positive)+" - "+str(negative)+" = "+str(positive-negative))
@@ -381,9 +410,10 @@ if __name__ == "__main__":
     print(str(positive)+" < "+str(negative)+" "+str(positive<negative))
     print(str(positive)+" > "+str(negative)+" "+str(positive>negative))
     print(str(positive)+" <= "+str(negative)+" "+str(positive<=negative))
-
     positive2 = Rational(6.44)
     print(str(positive)+" >= "+str(positive2)+" "+str(positive>=positive2)+"\n")
+
+    #test hash and optional methods
     set_belo={positive, negative, positive2}
     print(str(set_belo))
     print("lower integer to "+str(positive)+" is "+str(positive.to_integer_low()))
