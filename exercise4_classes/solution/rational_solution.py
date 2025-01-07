@@ -43,6 +43,7 @@ class Rational():
         #saving class object variables
         self.n, self.d = _n[_], _d[_]
         self.real, self.precision = float(num), float(precision)
+        self.real_appr = float(self.n/self.d)
         self.deco_d = pd(abs(self.d))
         self.deco_n = pd(abs(self.n))
         return None
@@ -83,6 +84,7 @@ class Rational():
             instance_rat.n = n
             instance_rat.d = 1
             instance_rat.real = 0.
+            instance_rat.real_appr = 0.
             #in this case, the precision is the float precision of python
             instance_rat.precision = sys.float_info.epsilon
             instance_rat.deco_d = pd(abs(1))
@@ -94,6 +96,7 @@ class Rational():
             instance_rat.n = int(n/_MCD)
             instance_rat.d = int(d/_MCD)
             instance_rat.real = float(n) / float(d)
+            instance_rat.real_appr = float(n) / float(d)
             #in this case, the precision is the float precision of python
             instance_rat.precision = sys.float_info.epsilon
             instance_rat.deco_d = pd(abs(int(d/_MCD)))
@@ -342,15 +345,15 @@ class Rational():
     #castings
     def __float__(self):
         """
-        casting float number corresponding to rational
+        casting float number corresponding to rational (the precisios appr. corresponding)
         """
-        return self.real
+        return self.real_appr
 
     def __int__(self):
         """
         casting integer number, using the well-known approximations
         """
-        if abs(self.real-self.to_integer_low()) < 0.5:
+        if abs(self.real_appr-self.to_integer_low()) < 0.5:
             return self.to_integer_low()
         else:
             return self.to_integer_upp()
@@ -370,13 +373,13 @@ class Rational():
         """
         return the approximation in defect of the rational
         """
-        return int(self.real//1)
+        return int(self.real_appr//1)
     
     def to_integer_upp (self) -> int :
         """
         return the approximation in excess of the rational
         """
-        return int(self.real//1 + 1)
+        return int(self.real_appr//1 + 1)
             
             
 
@@ -385,13 +388,23 @@ if __name__ == "__main__":
     #objects
     negative = Rational(-5.32)
     positive = Rational(6.44)
+    very_long_float = Rational(11.128273982)
     zero = Rational(0)
     n_d_direct = Rational._initnumdem(100,-35)
  
-    print(str(negative.real)+" is "+str(negative))
-    print(str(positive.real)+" is "+str(positive))
+    print(str(negative.real)+" is "+str(negative)+" corresponding to " \
+    +str(negative.real_appr)+" because of precision of conversion "+str(negative.precision))
+    
+    print(str(positive.real)+" is "+str(positive)+" corresponding to " \
+    +str(positive.real_appr)+" because of precision of conversion "+str(positive.precision))
+    
+    print(str(very_long_float.real)+" is "+str(very_long_float)+" corresponding to " \
+    +str(very_long_float.real_appr)+" because of precision of conversion "+str(very_long_float.precision))
+    
     print(str(zero.real)+" is "+str(zero))
-    print(str(n_d_direct.real)+" is "+str(n_d_direct)+"\n")
+    
+    print(str(n_d_direct.real)+" is "+str(n_d_direct)+" corresponding to " \
+    +str(n_d_direct.real_appr)+" because of precision of conversion "+str(n_d_direct.precision)+"\n")
 
     #test castings
     print("integer of "+str(positive)+" is "+str(int(positive)))
