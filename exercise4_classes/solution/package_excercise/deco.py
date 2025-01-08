@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import package_excercise.prime as prime
-import package_excercise.div as div
+from . import prime as prime
+from . import div as div
 
 def prime_division(n : int) -> list:
     """
@@ -20,6 +20,8 @@ def prime_division(n : int) -> list:
 
     if n==0:
         return [0]
+    if n==1:
+            return [1]
     
     _prime=prime.Eratosthenes_alghoritm(n)
     _divisor=[]
@@ -43,7 +45,7 @@ def prime_division(n : int) -> list:
 if __name__=="__main__":
     try:
         n=int(input('insert positive integer\n'))
-        if n<=0:
+        if n<0:
             print("Error: not valid input")
             quit()
         deco=prime_division(n)
